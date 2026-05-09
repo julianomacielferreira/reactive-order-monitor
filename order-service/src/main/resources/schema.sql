@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS orders (
+    id BIGSERIAL PRIMARY KEY,
+    sku VARCHAR(50) NOT NULL,
+    amount INT NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS audit_log (
+    id BIGSERIAL PRIMARY KEY,
+    order_id BIGINT,
+    action VARCHAR(50),
+    ts TIMESTAMP DEFAULT NOW()
+);
