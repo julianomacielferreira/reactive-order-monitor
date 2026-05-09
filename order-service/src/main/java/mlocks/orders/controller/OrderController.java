@@ -47,18 +47,21 @@ public class OrderController {
     private final OrderRepository orders;
     private final AuditRepository audits;
     private final KafkaSender<String, String> kafka;
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper;
     private final WebClient paymentClient = WebClient.create("http://localhost:8082");
 
-    public OrderController(OrderRepository orders, AuditRepository audits, KafkaSender<String, String> kafka) {
+    public OrderController(OrderRepository orders, AuditRepository audits, KafkaSender<String, String> kafka, ObjectMapper mapper) {
+
         this.orders = orders;
         this.audits = audits;
         this.kafka = kafka;
+        this.mapper = mapper;
     }
 
     // POST – returns Mono, non-blocking write + event publish
     @PostMapping
     public Mono<ResponseEntity<Order>> create(@RequestBody OrderRequest req) {
+
         Order toSave = new Order(req.sku(), req.amount(), "CREATED");
 
         return orders.save(toSave)
@@ -86,6 +89,7 @@ public class OrderController {
     // GET stream – Flux with backpressure
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Order> stream() {
+
         return orders.findAllByOrderByCreatedAtDesc()
                 .delayElements(Duration.ofMillis(200)) // simulate live feed
                 .onBackpressureBuffer(50) // protect slow clients
@@ -95,6 +99,7 @@ public class OrderController {
     // GET enriched – Mono.zip combines two async calls
     @GetMapping("/{id}/enriched")
     public Mono<EnrichedOrder> enriched(@PathVariable Long id) {
+
         Mono<Order> orderMono = orders.findById(id);
         Mono<PaymentStatus> paymentMono = paymentClient.get()
                 .uri("/payments/{id}", id)

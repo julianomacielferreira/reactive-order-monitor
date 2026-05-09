@@ -9,5 +9,13 @@ spring:
   kafka:
     bootstrap-servers: localhost:9092
 
+management:
+  tracing:
+    sampling:
+      probability: 1.0  # 100% for local practice, 0.1 in prod
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411/api/v2/spans
+
 server:
   port: 8081
