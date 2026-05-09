@@ -21,25 +21,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mlocks.orders.model;
+package mlocks.payment.controller;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import mlocks.payment.model.Payment;
+import mlocks.payment.repository.PaymentRepository;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
-import java.time.Instant;
+@RestController
+@RequestMapping("/api/payments")
+public class PaymentController {
 
-@Table("orders")
-public record Order(
-        @Id Long id,
-        String sku,
-        Integer amount,
-        String status,
-        Instant createdAt
-) {
+    private final PaymentRepository paymentRepository;
 
-    public Order(String sku, Integer amount, String status) {
-        this(null, sku, amount, status, Instant.now());
+    public PaymentController(PaymentRepository paymentRepository) {
+        this.paymentRepository = paymentRepository;
+    }
+
+    @GetMapping("/{orderId}")
+    public Mono<Payment> getByOrder(@PathVariable Long orderId) {
+        return paymentRepository.findByOrderId(orderId)
+                .switchIfEmpty(Mono.error(new RuntimeException("Not found")));
     }
 }
-
-

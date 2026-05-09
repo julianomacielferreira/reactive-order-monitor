@@ -26,6 +26,7 @@ package mlocks.orders.model;
 import java.time.Instant;
 
 public record OrderEvent(Long orderId, String type, Instant ts) {
+
     public OrderEvent(Long orderId, String type) {
         this(orderId, type, Instant.now());
     }

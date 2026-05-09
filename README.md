@@ -42,8 +42,30 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │           └── resources
 │               ├── application.yml
 │               └── schema.sql
+├── payment-service
+│   ├── pom.xml
+│   └── src
+│       └── main
+│           ├── java
+│           │   └── mlocks
+│           │       └── payment
+│           │           ├── config
+│           │           │   └── KafkaConfig.java
+│           │           ├── controller
+│           │           │   └── PaymentController.java
+│           │           ├── model
+│           │           │   ├── OrderEvent.java
+│           │           │   └── Payment.java
+│           │           ├── PaymentServiceApplication.java
+│           │           ├── repository
+│           │           │   └── PaymentRepository.java
+│           │           └── service
+│           │               └── PaymentProcessor.java
+│           └── resources
+│               ├── application.yml
+│               └── schema.sql
 └── README.md
 
-15 directories, 21 files
+27 directories, 31 files
 
 ```

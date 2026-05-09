@@ -30,6 +30,7 @@ import java.time.Instant;
 
 @Table("audit_log")
 public record Audit(@Id Long id, Long orderId, String action, Instant ts) {
+
     public Audit(Long orderId, String action) {
         this(null, orderId, action, Instant.now());
     }

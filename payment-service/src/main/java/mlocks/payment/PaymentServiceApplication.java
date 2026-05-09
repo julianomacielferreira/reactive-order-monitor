@@ -21,25 +21,15 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mlocks.orders.model;
+package mlocks.payment;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import java.time.Instant;
+@SpringBootApplication
+public class PaymentServiceApplication {
 
-@Table("orders")
-public record Order(
-        @Id Long id,
-        String sku,
-        Integer amount,
-        String status,
-        Instant createdAt
-) {
-
-    public Order(String sku, Integer amount, String status) {
-        this(null, sku, amount, status, Instant.now());
+    public static void main(String[] args) {
+        SpringApplication.run(PaymentServiceApplication.class, args);
     }
 }
-
-

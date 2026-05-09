@@ -21,25 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mlocks.orders.model;
-
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+package mlocks.payment.model;
 
 import java.time.Instant;
 
-@Table("orders")
-public record Order(
-        @Id Long id,
-        String sku,
-        Integer amount,
-        String status,
-        Instant createdAt
-) {
-
-    public Order(String sku, Integer amount, String status) {
-        this(null, sku, amount, status, Instant.now());
-    }
+public record OrderEvent(Long orderId, String type, Instant ts) {
 }
-
-

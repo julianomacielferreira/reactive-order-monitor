@@ -21,25 +21,12 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mlocks.orders.model;
+package mlocks.payment.repository;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.relational.core.mapping.Table;
+import mlocks.payment.model.Payment;
+import org.springframework.data.r2dbc.repository.R2dbcRepository;
+import reactor.core.publisher.Mono;
 
-import java.time.Instant;
-
-@Table("orders")
-public record Order(
-        @Id Long id,
-        String sku,
-        Integer amount,
-        String status,
-        Instant createdAt
-) {
-
-    public Order(String sku, Integer amount, String status) {
-        this(null, sku, amount, status, Instant.now());
-    }
+public interface PaymentRepository extends R2dbcRepository<Payment, Long> {
+    Mono<Payment> findByOrderId(Long orderId);
 }
-
-

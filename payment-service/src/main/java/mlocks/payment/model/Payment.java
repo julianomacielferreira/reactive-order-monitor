@@ -21,25 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package mlocks.orders.model;
+package mlocks.payment.model;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 import java.time.Instant;
 
-@Table("orders")
-public record Order(
-        @Id Long id,
-        String sku,
-        Integer amount,
-        String status,
-        Instant createdAt
-) {
+@Table("payments")
+public record Payment(@Id Long id, Long orderId, String status, Instant createdAt) {
 
-    public Order(String sku, Integer amount, String status) {
-        this(null, sku, amount, status, Instant.now());
+    public Payment(Long orderId, String status) {
+        this(null, orderId, status, Instant.now());
     }
 }
-
-
