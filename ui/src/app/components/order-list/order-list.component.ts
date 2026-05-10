@@ -34,6 +34,7 @@ import {BehaviorSubject, scan} from 'rxjs';
     templateUrl: './order-list.component.html'
 })
 export class OrderListComponent implements OnInit {
+
     private orders$ = new BehaviorSubject<Order[]>([]);
     list$ = this.orders$.asObservable();
     live = false;

@@ -21,28 +21,37 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import {Injectable} from '@angular/core';
-import {HttpClient} from '@angular/common/http';
-import {Observable} from 'rxjs';
-import {bufferTime, mergeAll, retry, share} from 'rxjs/operators';
-import {Order, OrderRequest} from '../models/order.model';
+import { Injectable, NgZone } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { bufferTime, mergeAll, retry, share } from 'rxjs/operators';
+import { Order, OrderRequest } from '../models/order.model';
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class OrderService {
-    constructor(private http: HttpClient) {
-    }
+
+    constructor(private http: HttpClient, private zone: NgZone) {}
 
     streamOrders(): Observable<Order> {
+
         return new Observable<Order>(observer => {
             const es = new EventSource('/api/orders/stream');
-            es.onmessage = e => observer.next(JSON.parse(e.data));
-            es.onerror = err => observer.error(err);
+
+            es.onmessage = e => {
+                // force back into Angular zone so change detection fires
+                this.zone.run(() => observer.next(JSON.parse(e.data)));
+            };
+
+            es.onerror = err => {
+                this.zone.run(() => observer.error(err));
+            };
+
             return () => es.close();
         }).pipe(
-            bufferTime(500),
+            bufferTime(500),  // backpressure – matches your Reactor limitRate
             mergeAll(),
-            retry({delay: 2000}),
-            share()
+            retry({ delay: 2000 }),
+            share() // one SSE connection for all subscribers
         );
     }
 
