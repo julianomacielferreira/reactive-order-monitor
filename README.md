@@ -161,6 +161,12 @@ $ npm run start
 
 And then access [http://localhost:4200/](http://localhost:4200/) on your browser.
 
+## Endpoints
+
+A Postman collection of endpoints is located in the file [Reactive Order Monitor.postman_collection.json](Reactive Order Monitor.postman_collection.json) and
+below are example cURL calls to the endpoints.
+
+
 ## References
 
 - [**Spring Boot**](https://spring.io/projects/spring-boot)
