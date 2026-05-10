@@ -120,7 +120,7 @@ To stop the containers, run:
 $ docker-compose down
 ```
 
-Type the following three commands in directory ``order-service`` to install dependencies:
+Type the following three commands in directory ``order-service`` to install dependencies and start the service:
 
 ```bash
 $ cd order-service/
@@ -128,13 +128,38 @@ $ ../mvnw install
 $ ../mvnw spring-boot:run
 ```
 
-Do the same in the directory ``payment-service``:
+Do the same in the directory ``payment-service`` (install dependencies and start the service):
 
 ```bash
 $ cd payment-service/
 $ ../mvnw install
 $ ../mvnw spring-boot:run
 ```
+
+Check if you have a recent version of [Node.js](https://nodejs.org/) (which comes bundled with [npm](https://www.npmjs.com/), a JavaScript package manager):
+
+```bash
+$ node -v
+```
+
+```bash
+$ npm -v
+```
+
+In the ``ui`` directory install all the dependencies and libs:
+
+```bash
+$ cd ui/
+$ npm install
+```
+
+Run the following command:
+
+```bash
+$ npm run start
+```
+
+And then access [http://localhost:4200/](http://localhost:4200/) on your browser.
 
 ## References
 
