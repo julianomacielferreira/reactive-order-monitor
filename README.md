@@ -26,6 +26,7 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │           │           │   ├── JacksonConfig.java
 │           │           │   └── KafkaConfig.java
 │           │           ├── controller
+│           │           │   ├── KafkaProducer.java
 │           │           │   └── OrderController.java
 │           │           ├── dto
 │           │           │   ├── EnrichedOrder.java
@@ -64,8 +65,33 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │           └── resources
 │               ├── application.yml
 │               └── schema.sql
-└── README.md
+├── README.md
+└── ui
+    ├── angular.json
+    ├── package.json
+    ├── proxy.conf.json
+    ├── src
+    │   ├── app
+    │   │   ├── app.component.ts
+    │   │   ├── components
+    │   │   │   ├── order-create
+    │   │   │   │   └── order-create.component.ts
+    │   │   │   └── order-list
+    │   │   │       ├── order-list.component.html
+    │   │   │       └── order-list.component.ts
+    │   │   ├── models
+    │   │   │   └── order.model.ts
+    │   │   └── services
+    │   │       └── order.service.ts
+    │   ├── favicon.ico
+    │   ├── index.html
+    │   ├── main.ts
+    │   ├── polyfills.ngtypecheck.ts
+    │   ├── polyfills.ts
+    │   └── styles.css
+    ├── tsconfig.app.json
+    └── tsconfig.json
 
-27 directories, 31 files
+35 directories, 49 files
 
 ```
