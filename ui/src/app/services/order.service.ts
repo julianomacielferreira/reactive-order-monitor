@@ -50,7 +50,7 @@ export class OrderService {
         }).pipe(
             bufferTime(500),  // backpressure – matches your Reactor limitRate
             mergeAll(),
-            retry({ delay: 2000 }),
+            retry({ delay: 1000 }),
             share() // one SSE connection for all subscribers
         );
     }
