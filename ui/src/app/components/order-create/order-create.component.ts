@@ -21,30 +21,31 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import { Component, EventEmitter, Output } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { OrderService } from '../../services/order.service';
-import { OrderRequest } from '../../models/order.model';
+import {Component} from '@angular/core';
+import {FormsModule} from '@angular/forms'; // <-- FIXED: from '@angular/forms'
+import {OrderService} from '../../services/order.service';
 
 @Component({
     selector: 'app-order-create',
     standalone: true,
     imports: [FormsModule],
-    templateUrl: './order-create.component.html'
+    template: `
+    <input [(ngModel)]="sku" placeholder="SKU">
+    <input type="number" [(ngModel)]="amount" min="1">
+    <button (click)="send()" [disabled]="!sku">Create</button>
+  `
 })
 export class OrderCreateComponent {
     sku = '';
     amount = 1;
-    @Output() created = new EventEmitter<void>();
 
-    constructor(private orders: OrderService) {}
+    constructor(private svc: OrderService) {
+    }
 
-    submit() {
-        const req: OrderRequest = { sku: this.sku, amount: this.amount };
-        this.orders.create(req).subscribe(() => {
+    send() {
+        this.svc.create({sku: this.sku, amount: this.amount}).subscribe(() => {
             this.sku = '';
             this.amount = 1;
-            this.created.emit();
         });
     }
 }

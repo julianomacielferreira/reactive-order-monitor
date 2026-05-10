@@ -34,24 +34,24 @@ import {BehaviorSubject, scan} from 'rxjs';
     templateUrl: './order-list.component.html'
 })
 export class OrderListComponent implements OnInit {
-    private ordersSubject = new BehaviorSubject<Order[]>([]);
-    orders$ = this.ordersSubject.asObservable();
+    private orders$ = new BehaviorSubject<Order[]>([]);
+    list$ = this.orders$.asObservable();
     live = false;
 
-    constructor(private orderService: OrderService) {
+    constructor(private svc: OrderService) {
     }
 
     ngOnInit() {
-        this.orderService.streamOrders().pipe(
-            scan((acc: Order[], order: Order) => {
-                const idx = acc.findIndex(o => o.id === order.id);
-                if (idx >= 0) acc[idx] = order; else acc.unshift(order);
-                return [...acc].slice(0, 100);
-            }, [])
+        this.svc.streamOrders().pipe(
+            scan((acc, cur) => {
+                const i = acc.findIndex(o => o.id === cur.id);
+                if (i >= 0) acc[i] = cur; else acc.unshift(cur);
+                return acc.slice(0, 100);
+            }, [] as Order[])
         ).subscribe({
-            next: list => {
+            next: v => {
                 this.live = true;
-                this.ordersSubject.next(list);
+                this.orders$.next(v);
             },
             error: () => this.live = false
         });

@@ -1,38 +1,58 @@
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
-  "defaultProject": "ui",
   "projects": {
-    "ui": {
+    "order-monitor-ui": {
       "projectType": "application",
+      "schematics": {},
       "root": "",
       "sourceRoot": "src",
+      "prefix": "app",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:browser",
           "options": {
-            "outputPath": "dist/ui",
+            "outputPath": "dist/order-monitor-ui",
             "index": "src/index.html",
             "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
-            "tsConfig": "tsconfig.app.json",
-            "assets": ["src/favicon.ico", "src/assets"],
-            "styles": ["src/styles.css"],
+            "polyfills": [
+              "zone.js"
+            ],
+            "tsConfig": "tsconfig.json",
+            "assets": [],
+            "styles": [
+              "src/styles.css"
+            ],
             "scripts": []
-          }
+          },
+          "configurations": {
+            "production": {
+              "optimization": true,
+              "outputHashing": "all"
+            },
+            "development": {
+              "optimization": false,
+              "sourceMap": true
+            }
+          },
+          "defaultConfiguration": "production"
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
-          "options": {
-            "buildTarget": "ui:build",
-            "proxyConfig": "proxy.conf.json",
-            "port": 4200
-          }
+          "configurations": {
+            "production": {
+              "browserTarget": "order-monitor-ui:build:production"
+            },
+            "development": {
+              "browserTarget": "order-monitor-ui:build:development"
+            }
+          },
+          "defaultConfiguration": "development"
         }
       }
     }
   },
   "cli": {
-    "analytics": "3a1e8844-4c97-4575-b1db-350da25a5d53"
+    "analytics": "1ea610a6-bac6-40b0-b29e-dc233d28eba9"
   }
 }

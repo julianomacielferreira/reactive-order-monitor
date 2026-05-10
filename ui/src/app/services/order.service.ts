@@ -32,25 +32,21 @@ export class OrderService {
     constructor(private http: HttpClient) {
     }
 
-    // RxJS mirrors Reactor: EventSource is the Flux, bufferTime is limitRate
     streamOrders(): Observable<Order> {
         return new Observable<Order>(observer => {
             const es = new EventSource('/api/orders/stream');
-
             es.onmessage = e => observer.next(JSON.parse(e.data));
             es.onerror = err => observer.error(err);
-
-            // cleanup on unsubscribe
             return () => es.close();
         }).pipe(
-            bufferTime(500), // collect events for 500ms – backpressure on UI
-            mergeAll(), // flatten array back to stream
-            retry({delay: 2000}), // auto-reconnect like Reactor retryWhen
-            share() // multiple components share one SSE connection
+            bufferTime(500),
+            mergeAll(),
+            retry({delay: 2000}),
+            share()
         );
     }
 
-    create(order: OrderRequest): Observable<Order> {
+    create(order: OrderRequest) {
         return this.http.post<Order>('/api/orders', order);
     }
 }

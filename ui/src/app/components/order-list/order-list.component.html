@@ -1,23 +1,17 @@
-<h3>Live Orders <span class="live" *ngIf="live">● LIVE</span></h3>
+<h3>Live Orders <span *ngIf="live" style="color:green">● LIVE</span></h3>
 <table>
-    <thead>
     <tr>
         <th>ID</th>
         <th>SKU</th>
-        <th>Amount</th>
+        <th>Amt</th>
         <th>Status</th>
-        <th>Payment</th>
         <th>Created</th>
     </tr>
-    </thead>
-    <tbody>
-    <tr *ngFor="let o of orders$ | async">
-        <td>{{ o.id }}</td>
-        <td>{{ o.sku }}</td>
-        <td>{{ o.amount }}</td>
-        <td>{{ o.status }}</td>
-        <td>{{ o.paymentStatus || '-' }}</td>
-        <td>{{ o.createdAt | date:'short' }}</td>
+    <tr *ngFor="let o of list$ | async">
+        <td>{{o.id}}</td>
+        <td>{{o.sku}}</td>
+        <td>{{o.amount}}</td>
+        <td>{{o.status}}</td>
+        <td>{{o.createdAt | date:'short'}}</td>
     </tr>
-    </tbody>
 </table>
