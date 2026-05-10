@@ -30,6 +30,7 @@ import mlocks.orders.model.*;
 import mlocks.orders.repository.AuditRepository;
 import mlocks.orders.repository.OrderRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -49,6 +50,8 @@ public class OrderController {
     private final KafkaSender<String, String> kafka;
     private final ObjectMapper mapper;
     private final WebClient paymentClient = WebClient.create("http://localhost:8082");
+    @Autowired
+    private KafkaProducer kafkaProducer;
 
     public OrderController(OrderRepository orders, AuditRepository audits, KafkaSender<String, String> kafka, ObjectMapper mapper) {
 
@@ -77,7 +80,7 @@ public class OrderController {
                         return Mono.error(e);
                     }
 
-                    Mono<Void> send = kafka.send(Mono.just(SenderRecord.create("orders", null, null, saved.id().toString(), json, null))).then();
+                    Mono<Void> send = kafkaProducer.send("orders", saved.id().toString(), json);
 
                     return Mono.when(audit, send).thenReturn(saved);
                 })

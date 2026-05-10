@@ -23,11 +23,16 @@
  */
 package mlocks.payment.service;
 
+import brave.Span;
+import brave.Tracing;
+import brave.propagation.Propagation;
+import brave.propagation.TraceContextOrSamplingFlags;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import mlocks.payment.model.OrderEvent;
 import mlocks.payment.model.Payment;
 import mlocks.payment.repository.PaymentRepository;
+import org.apache.kafka.common.header.Headers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -38,54 +43,102 @@ import reactor.kafka.receiver.KafkaReceiver;
 import reactor.kafka.receiver.ReceiverRecord;
 import reactor.util.retry.Retry;
 
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 
 @Service
 public class PaymentProcessor {
 
     private static final Logger log = LoggerFactory.getLogger(PaymentProcessor.class);
+
     private final KafkaReceiver<String, OrderEvent> receiver;
     private final PaymentRepository paymentRepository;
+    private final Tracing tracing;
+
     private Disposable subscription;
 
-    public PaymentProcessor(KafkaReceiver<String, OrderEvent> receiver, PaymentRepository paymentRepository) {
+    // B3 propagation support
+    private final Propagation<String> propagation = Propagation.B3_STRING;
+
+    private final Propagation.Getter<Headers, String> getter =
+            (headers, key) -> {
+                var h = headers.lastHeader(key);
+                return h != null
+                        ? new String(h.value(), StandardCharsets.UTF_8)
+                        : null;
+            };
+
+    public PaymentProcessor(
+            KafkaReceiver<String, OrderEvent> receiver,
+            PaymentRepository paymentRepository,
+            Tracing tracing
+    ) {
         this.receiver = receiver;
         this.paymentRepository = paymentRepository;
+        this.tracing = tracing;
     }
 
     @PostConstruct
     public void start() {
 
-        // This integrates Kafka with Spring WebFlux for reactive messaging, using Reactor Kafka for non-blocking message handling.
         subscription = receiver.receive()
-                .publishOn(Schedulers.boundedElastic()) // do not block Kafka poll thread
-                .flatMap(this::processRecord, 10) // concurrency 10, controls backpressure
+                .publishOn(Schedulers.boundedElastic())
+                .flatMap(this::processRecord, 10)
                 .doOnError(e -> log.error("Stream failed", e))
-                .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5))) // restart on broker outage
+                .retryWhen(Retry.backoff(Long.MAX_VALUE, Duration.ofSeconds(5)))
                 .subscribe();
     }
 
     private Mono<Void> processRecord(ReceiverRecord<String, OrderEvent> record) {
 
-        OrderEvent event = record.value();
+        // Extract trace context from Kafka headers
+        TraceContextOrSamplingFlags extracted =
+                propagation.extractor(getter)
+                        .extract(record.headers());
 
-        return paymentRepository.findByOrderId(event.orderId())
-                .switchIfEmpty(
-                        paymentRepository.save(new Payment(event.orderId(), "AUTHORIZED"))
-                                .doOnSuccess(p -> log.info("Payment created for order {}", event.orderId()))
-                )
-                .then(Mono.fromRunnable(() -> record.receiverOffset().acknowledge())) // commit only after DB success
-                .onErrorResume(e -> {
-                    log.error("Failed processing order {}, sending to DLT", event.orderId(), e);
-                    // in real project, send to orders.DLT topic here
-                    record.receiverOffset().acknowledge(); // avoid poison pill loop
-                    return Mono.empty();
-                }).then();
+        // Create child span
+        Span span = tracing.tracer()
+                .nextSpan(extracted)
+                .name("kafka.receive")
+                .start();
+
+        try (var scope = tracing.tracer().withSpanInScope(span)) {
+
+            OrderEvent event = record.value();
+
+            span.tag("order.id", String.valueOf(event.orderId()));
+
+            Payment authorized = new Payment(event.orderId(), "AUTHORIZED");
+
+            return paymentRepository.findByOrderId(event.orderId())
+                    .switchIfEmpty(
+                            paymentRepository.save(authorized)
+                                    .doOnSuccess(p -> log.info("Payment created for order {}", event.orderId()))
+                    )
+                    .then(
+                            Mono.fromRunnable(() -> {
+                                record.receiverOffset().acknowledge();
+                                log.info("Offset acknowledged for order {}", event.orderId());
+                            })
+                    )
+                    .doOnError(e -> {
+                        span.error(e);
+
+                        log.error("Failed processing order {}, sending to DLT", event.orderId(), e);
+
+                        // avoid poison-pill loop
+                        record.receiverOffset().acknowledge();
+                    })
+                    .doFinally(signalType -> span.finish())
+                    .then();
+        }
     }
 
     @PreDestroy
     public void stop() {
 
-        if (subscription != null) subscription.dispose();
+        if (subscription != null) {
+            subscription.dispose();
+        }
     }
 }
