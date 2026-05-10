@@ -1,0 +1,4 @@
+<h3>Create Order</h3>
+<input [(ngModel)]="sku" placeholder="SKU"/>
+<input type="number" [(ngModel)]="amount" min="1"/>
+<button (click)="submit()" [disabled]="!sku">Create</button>

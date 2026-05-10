@@ -1,0 +1,32 @@
+body {
+    font-family: system-ui, sans-serif;
+    margin: 2rem;
+    background: #f7f7f7;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+th, td {
+    padding: 0.6rem;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+button {
+    padding: 0.5rem 1rem;
+    margin-right: 0.5rem;
+}
+
+input {
+    padding: 0.4rem;
+    margin-right: 0.5rem;
+}
+
+.live {
+    color: green;
+    font-weight: bold;
+}

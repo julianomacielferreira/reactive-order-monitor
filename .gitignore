@@ -25,3 +25,6 @@ replay_pid*
 /order-service/target/
 /.idea/
 /payment-service/target/
+/ui/node_modules/
+/ui/package-lock.json
+/ui/.angular
