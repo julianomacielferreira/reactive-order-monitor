@@ -66,7 +66,9 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │           └── resources
 │               ├── application.yml
 │               └── schema.sql
+├── Reactive Order Monitor.postman_collection.json
 ├── README.md
+├── realtime-reactive-order-monitor.png
 └── ui
     ├── angular.json
     ├── package.json
@@ -93,7 +95,7 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
     ├── tsconfig.app.json
     └── tsconfig.json
 
-35 directories, 49 files
+35 directories, 51 files
 
 ```
 
