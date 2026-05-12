@@ -168,7 +168,7 @@ And then access [http://localhost:4200/](http://localhost:4200/) on your browser
 A Postman collection of endpoints is located in the file [Reactive Order Monitor.postman_collection.json](https://github.com/julianomacielferreira/reactive-order-monitor/blob/main/Reactive%20Order%20Monitor.postman_collection.json) and
 below are example cURL calls to the endpoints.
 
-- **`POST` /api/orders** (Retrieve all posts)
+- **`POST` /api/orders** (Create new order)
 
 ```bash
 $ curl --location 'http://localhost:8081/api/orders' \
@@ -190,6 +190,28 @@ $ curl --location 'http://localhost:8081/api/orders' \
     "status": "CREATED",
     "createdAt": "2026-05-12T19:54:16.406162538Z"
 }
+```
+</details>
+
+---
+
+- **`GET` /api/orders/stream** (Retrieve all orders)
+
+```bash
+$ curl --location 'http://localhost:8081/api/orders/stream'
+```
+
+<details>
+<summary><b>Response</b></summary>
+
+```json
+data:{"id":5,"sku":"ABCD","amount":100,"status":"CREATED","createdAt":"2026-05-12T19:54:16.406163Z"}
+
+data:{"id":4,"sku":"ABCD","amount":100,"status":"CREATED","createdAt":"2026-05-12T19:29:21.344336Z"}
+
+data:{"id":3,"sku":"ABCD","amount":100,"status":"CREATED","createdAt":"2026-05-12T19:28:49.163356Z"}
+
+data:{"id":2,"sku":"ABCD","amount":100,"status":"CREATED","createdAt":"2026-05-11T13:40:42.397927Z"}
 ```
 </details>
 
