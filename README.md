@@ -217,6 +217,33 @@ data:{"id":2,"sku":"ABCD","amount":100,"status":"CREATED","createdAt":"2026-05-1
 
 ---
 
+- **`GET` /api/orders/:orderId/enriched** (Retrieve order by primary key)
+
+```bash
+$ curl --location 'http://localhost:8081/api/orders/1/enriched'
+```
+
+<details>
+<summary><b>Response</b></summary>
+
+```json
+{
+  "order": {
+    "id": 3,
+    "sku": "ABCD",
+    "amount": 100,
+    "status": "CREATED",
+    "createdAt": "2026-05-12T19:28:49.163356Z"
+  },
+  "payment": {
+    "status": "UNKNOWN"
+  }
+}
+```
+</details>
+
+---
+
 ## References
 
 - [**Spring Boot**](https://spring.io/projects/spring-boot)
