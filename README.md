@@ -130,6 +130,8 @@ $ ../mvnw install
 $ ../mvnw spring-boot:run
 ```
 
+The service will run on ``http://localhost:8081/api/``
+
 Do the same in the directory ``payment-service`` (install dependencies and start the service):
 
 ```bash
@@ -137,6 +139,8 @@ $ cd payment-service/
 $ ../mvnw install
 $ ../mvnw spring-boot:run
 ```
+
+The service will run on ``http://localhost:8082/api/``
 
 Check if you have a recent version of [Node.js](https://nodejs.org/) (which comes bundled with [npm](https://www.npmjs.com/), a JavaScript package manager):
 
@@ -238,6 +242,27 @@ $ curl --location 'http://localhost:8081/api/orders/1/enriched'
   "payment": {
     "status": "UNKNOWN"
   }
+}
+```
+</details>
+
+---
+
+- **`GET` /api/payments/:orderId** (Retrieve order payment by primary key)
+
+```bash
+$ curl --location 'http://localhost:8082/api/payments/1'
+```
+
+<details>
+<summary><b>Response</b></summary>
+
+```json
+{
+  "id": 1,
+  "orderId": 1,
+  "status": "AUTHORIZED",
+  "createdAt": "2026-05-11T13:40:35.722187Z"
 }
 ```
 </details>
