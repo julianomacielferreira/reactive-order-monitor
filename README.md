@@ -142,6 +142,15 @@ $ ../mvnw spring-boot:run
 
 The service will run on ``http://localhost:8082/api/``
 
+
+## Database Model
+
+The database is very simple, only containing three tables.
+
+![Database](ER_db_model.png)
+
+## Frontend
+
 Check if you have a recent version of [Node.js](https://nodejs.org/) (which comes bundled with [npm](https://www.npmjs.com/), a JavaScript package manager):
 
 ```bash
