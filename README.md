@@ -1,4 +1,4 @@
-# Reactive Order Monitor $${\color{red}[in \space progress]}$$
+# Reactive Order Monitor
 
 Real-Time Order Monitor with two reactive microservices, Kafka in the middle, and an Angular dashboard streaming live updates
 
@@ -166,6 +166,8 @@ $ npm run start
 ```
 
 And then access [http://localhost:4200/](http://localhost:4200/) on your browser.
+
+![Reactive Order Monitor](ui-screenshot.png)
 
 ## Endpoints
 
