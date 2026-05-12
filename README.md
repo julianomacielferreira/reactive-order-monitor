@@ -168,6 +168,32 @@ And then access [http://localhost:4200/](http://localhost:4200/) on your browser
 A Postman collection of endpoints is located in the file [Reactive Order Monitor.postman_collection.json](https://github.com/julianomacielferreira/reactive-order-monitor/blob/main/Reactive%20Order%20Monitor.postman_collection.json) and
 below are example cURL calls to the endpoints.
 
+- **`POST` /api/orders** (Retrieve all posts)
+
+```bash
+$ curl --location 'http://localhost:8081/api/orders' \
+--header 'Content-Type: application/json' \
+--data '{
+    "sku": "ABCD",
+    "amount": 100
+}'
+```
+
+<details>
+<summary><b>Response</b></summary>
+
+```json
+{
+    "id": 5,
+    "sku": "ABCD",
+    "amount": 100,
+    "status": "CREATED",
+    "createdAt": "2026-05-12T19:54:16.406162538Z"
+}
+```
+</details>
+
+---
 
 ## References
 
