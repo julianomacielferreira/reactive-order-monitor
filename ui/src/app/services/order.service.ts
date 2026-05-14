@@ -24,7 +24,7 @@
 import {Injectable, NgZone} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {concatMap, Observable} from 'rxjs';
-import {bufferTime, retry, share} from 'rxjs/operators';
+import {bufferTime, share} from 'rxjs/operators';
 import {Order, OrderRequest} from '../models/order.model';
 
 @Injectable({providedIn: 'root'})
