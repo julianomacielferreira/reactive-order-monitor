@@ -97,9 +97,8 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │   │   ├── app
 │   │   │   ├── app.component.ts
 │   │   │   ├── components
-│   │   │   │   ├── order-create
-│   │   │   │   │   └── order-create.component.ts
 │   │   │   │   └── order-list
+│   │   │   │       ├── order-list.component.css
 │   │   │   │       ├── order-list.component.html
 │   │   │   │       └── order-list.component.ts
 │   │   │   ├── models
@@ -116,7 +115,7 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │   └── tsconfig.json
 └── ui-screenshot.png
 
-45 directories, 62 files
+44 directories, 62 files
 ```
 
 ## Running the application
