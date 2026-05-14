@@ -25,7 +25,7 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/order.model';
-import {BehaviorSubject, scan} from 'rxjs';
+import {Observable, scan} from 'rxjs';
 
 @Component({
     selector: 'app-order-list',
@@ -35,26 +35,31 @@ import {BehaviorSubject, scan} from 'rxjs';
 })
 export class OrderListComponent implements OnInit {
 
-    private orders$ = new BehaviorSubject<Order[]>([]);
-    list$ = this.orders$.asObservable();
+    list$!: Observable<Order[]>;
     live = false;
 
     constructor(private svc: OrderService) {
     }
 
     ngOnInit() {
-        this.svc.streamOrders().pipe(
+
+        this.list$ = this.svc.streamOrders().pipe(
             scan((acc, cur) => {
-                const i = acc.findIndex(o => o.id === cur.id);
-                if (i >= 0) acc[i] = cur; else acc.unshift(cur);
-                return acc.slice(0, 100);
+
+                const existing =
+                    acc.findIndex(o => o.id === cur.id);
+
+                if (existing >= 0) {
+                    return acc.map(o =>
+                        o.id === cur.id ? cur : o
+                    );
+                }
+
+                return [cur, ...acc].slice(0, 100);
+
             }, [] as Order[])
-        ).subscribe({
-            next: v => {
-                this.live = true;
-                this.orders$.next(v);
-            },
-            error: () => this.live = false
-        });
+        );
+
+        this.live = true;
     }
 }

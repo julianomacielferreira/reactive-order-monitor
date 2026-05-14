@@ -21,16 +21,17 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-import { Injectable, NgZone } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { bufferTime, mergeAll, retry, share } from 'rxjs/operators';
-import { Order, OrderRequest } from '../models/order.model';
+import {Injectable, NgZone} from '@angular/core';
+import {HttpClient} from '@angular/common/http';
+import {concatMap, Observable} from 'rxjs';
+import {bufferTime, retry, share} from 'rxjs/operators';
+import {Order, OrderRequest} from '../models/order.model';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class OrderService {
 
-    constructor(private http: HttpClient, private zone: NgZone) {}
+    constructor(private http: HttpClient, private zone: NgZone) {
+    }
 
     streamOrders(): Observable<Order> {
 
@@ -48,9 +49,8 @@ export class OrderService {
 
             return () => es.close();
         }).pipe(
-            bufferTime(500),  // backpressure – matches your Reactor limitRate
-            mergeAll(),
-            retry({ delay: 2000 }),
+            bufferTime(500), // reduce Angular change-detection frequency
+            concatMap(batch => batch),
             share() // one SSE connection for all subscribers
         );
     }

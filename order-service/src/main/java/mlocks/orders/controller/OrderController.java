@@ -50,7 +50,7 @@ public class OrderController {
     private final KafkaSender<String, String> kafka;
     private final ObjectMapper mapper;
     private final WebClient paymentClient = WebClient.create("http://localhost:8082/api");
-    private final Sinks.Many<Order> orderSink = Sinks.many().multicast().onBackpressureBuffer();
+    private final Sinks.Many<Order> orderSink = Sinks.many().replay().latest();
 
     @Autowired
     private KafkaProducer kafkaProducer;
@@ -98,13 +98,10 @@ public class OrderController {
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Order> stream() {
 
-        Flux<Order> history =
-                orders.findAllByOrderByCreatedAtDesc();
-
-        Flux<Order> live =
-                orderSink.asFlux();
-
-        return Flux.concat(history, live)
+        return orderSink.asFlux()
+                .mergeWith(
+                        orders.findAllByOrderByCreatedAtDesc()
+                )
                 .onBackpressureBuffer(50);
     }
 
