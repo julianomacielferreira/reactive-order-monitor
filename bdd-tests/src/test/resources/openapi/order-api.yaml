@@ -1,7 +1,5 @@
 openapi: 3.0.3
-info:
-  title: Order API
-  version: 1.0.0
+info: { title: Order API, version: 1.0.0 }
 paths:
   /api/orders:
     post:
@@ -10,23 +8,60 @@ paths:
         required: true
         content:
           application/json:
-            schema:
-              type: object
-              required: [sku, amount]
-              properties:
-                sku: { type: string }
-                amount: { type: integer, minimum: 1 }
+            schema: { $ref: '#/components/schemas/OrderRequest' }
       responses:
-        '201':
-          description: Created
+        '201': { description: Created, content: { application/json: { schema: { $ref: '#/components/schemas/Order' } } } }
+
+  /api/orders/stream:
+    get:
+      summary: SSE stream of orders
+      responses:
+        '200': { description: stream, content: { 'text/event-stream': { schema: { type: string } } } }
+
+  /api/orders/{id}/enriched:
+    get:
+      summary: Order with payment
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: OK
           content:
             application/json:
               schema:
                 type: object
-                required: [id, sku, amount, status]
+                required: [ order, payment ]
                 properties:
-                  id: { type: integer }
-                  sku: { type: string }
-                  amount: { type: integer }
-                  status: { type: string }
-                  createdAt: { type: string }
+                  order:
+                    $ref: '#/components/schemas/Order'
+                  payment:
+                    $ref: '#/components/schemas/Payment'
+
+components:
+  schemas:
+    OrderRequest:
+      type: object
+      required: [ sku, amount ]
+      properties: { sku: { type: string }, amount: { type: integer, minimum: 1 } }
+    Order:
+      type: object
+      required: [ id, sku, amount, status ]
+      properties:
+        id: { type: integer }
+        sku: { type: string }
+        amount: { type: integer }
+        status: { type: string }
+        createdAt: { type: string }
+    Payment:
+      type: object
+      properties:
+        id:
+          type: integer
+        orderId:
+          type: integer
+        status:
+          type: string
+          enum: [ PENDING, AUTHORIZED, COMPLETED, FAILED, UNKNOWN ]
+        createdAt:
+          type: string
+          format: date-time

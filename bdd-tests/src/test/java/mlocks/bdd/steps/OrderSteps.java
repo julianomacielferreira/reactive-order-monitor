@@ -21,11 +21,6 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-/*
- * The MIT License
- *
- * Copyright 2026 juliano.
- */
 package mlocks.bdd.steps;
 
 import com.atlassian.oai.validator.restassured.OpenApiValidationFilter;
@@ -60,6 +55,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrderSteps {
 
+    private int lastOrderId;
     private static final String BASE_URL = "http://localhost:8081";
     private static final String DB_URL = "jdbc:postgresql://localhost:5432/reactive_order_monitor";
     private static final String DB_USER = "reactive";
@@ -171,5 +167,52 @@ public class OrderSteps {
                         assertTrue(found, event + " event not found in Kafka topic");
                     });
         }
+    }
+
+    @Given("an order exists with sku {string} and amount {int}")
+    public void createOrder(String sku, int amount) {
+
+        response = given()
+                .baseUri(BASE_URL)
+                .filter(apiFilter)
+                .contentType(ContentType.JSON)
+                .body(Map.of("sku", sku, "amount", amount))
+                .when().post("/api/orders")
+                .then().extract().response();
+
+        lastOrderId = response.jsonPath().getInt("id");
+
+        assertEquals(201, response.statusCode());
+    }
+
+    @Given("payment for the last order is completed")
+    public void paymentCompleted() {
+
+        // payment-service listens to Kafka and updates status.
+        // Wait until enriched endpoint returns AUTHORIZED
+        await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> {
+
+            Response r = given().baseUri(BASE_URL).get("/api/orders/" + lastOrderId + "/enriched");
+
+            assertEquals(200, r.statusCode());
+            assertEquals("AUTHORIZED", r.jsonPath().getString("payment.status"));
+        });
+    }
+
+    @When("I GET \\/api\\/orders\\/\\{id}\\/enriched for the last order")
+    public void getEnriched() {
+        
+        response = given()
+                .baseUri(BASE_URL)
+                .filter(apiFilter)
+                .when()
+                .get("/api/orders/" + lastOrderId + "/enriched")
+                .then()
+                .extract().response();
+    }
+
+    @Then("response contains payment.status {string}")
+    public void checkPayment(String status) {
+        assertEquals(status, response.jsonPath().getString("payment.status"));
     }
 }

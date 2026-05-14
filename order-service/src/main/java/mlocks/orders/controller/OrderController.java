@@ -38,7 +38,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.kafka.sender.KafkaSender;
-import reactor.kafka.sender.SenderRecord;
+import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
 
@@ -49,7 +49,9 @@ public class OrderController {
     private final AuditRepository audits;
     private final KafkaSender<String, String> kafka;
     private final ObjectMapper mapper;
-    private final WebClient paymentClient = WebClient.create("http://localhost:8082");
+    private final WebClient paymentClient = WebClient.create("http://localhost:8082/api");
+    private final Sinks.Many<Order> orderSink = Sinks.many().multicast().onBackpressureBuffer();
+
     @Autowired
     private KafkaProducer kafkaProducer;
 
@@ -82,7 +84,10 @@ public class OrderController {
 
                     Mono<Void> send = kafkaProducer.send("orders", saved.id().toString(), json);
 
-                    return Mono.when(audit, send).thenReturn(saved);
+                    return Mono.when(audit, send)
+                            .then(Mono.fromRunnable(() ->
+                                    orderSink.tryEmitNext(saved)))
+                            .thenReturn(saved);
                 })
                 .map(o -> ResponseEntity.status(201).body(o))
                 .timeout(Duration.ofSeconds(2)) // fail fast, do not block thread
@@ -93,10 +98,14 @@ public class OrderController {
     @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<Order> stream() {
 
-        return orders.findAllByOrderByCreatedAtDesc()
-                .delayElements(Duration.ofMillis(200)) // simulate live feed
-                .onBackpressureBuffer(50) // protect slow clients
-                .limitRate(10); // request 10 at a time from DB
+        Flux<Order> history =
+                orders.findAllByOrderByCreatedAtDesc();
+
+        Flux<Order> live =
+                orderSink.asFlux();
+
+        return Flux.concat(history, live)
+                .onBackpressureBuffer(50);
     }
 
     // GET enriched – Mono.zip combines two async calls

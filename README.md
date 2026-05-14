@@ -217,21 +217,7 @@ $ ../mvnw test
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
-[INFO] --- resources:3.3.1:resources (default-resources) @ bdd-tests ---
-[INFO] skip non existing resourceDirectory /home/juliano/Public/reactive-order-monitor/bdd-tests/src/main/resources
-[INFO] 
-[INFO] --- compiler:3.13.0:compile (default-compile) @ bdd-tests ---
-[INFO] No sources to compile
-[INFO] 
-[INFO] --- resources:3.3.1:testResources (default-testResources) @ bdd-tests ---
-[INFO] Copying 3 resources from src/test/resources to target/test-classes
-[INFO] 
-[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ bdd-tests ---
-[INFO] Recompiling the module because of changed source code.
-[INFO] Compiling 2 source files with javac [debug target 17] to target/test-classes
-[INFO] 
-[INFO] --- surefire:3.2.5:test (default-test) @ bdd-tests ---
-[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+...
 [INFO] 
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
@@ -249,17 +235,30 @@ SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further detail
   And order is stored in database                       # mlocks.bdd.steps.OrderSteps.dbCheck()
 Kafka event received: {"orderId":1,"type":"CREATED","ts":"2026-05-14T14:17:34.974324117Z"}
   And event "CREATED" is published to Kafka             # mlocks.bdd.steps.OrderSteps.kafkaCheck(java.lang.String)
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.625 s -- in mlocks.bdd.RunCucumberTest
+
+Scenario: Order returns with payment status from payment-service # features/order_enriched.feature:3
+  Given an order exists with sku "ENR1" and amount 10            # mlocks.bdd.steps.OrderSteps.createOrder(java.lang.String,int)
+  And payment for the last order is completed                    # mlocks.bdd.steps.OrderSteps.paymentCompleted()
+  When I GET /api/orders/{id}/enriched for the last order        # mlocks.bdd.steps.OrderSteps.getEnriched()
+  Then response status is 200                                    # mlocks.bdd.steps.OrderSteps.status(int)
+  And response contains payment.status "AUTHORIZED"              # mlocks.bdd.steps.OrderSteps.checkPayment(java.lang.String)
+  And response matches OpenAPI spec                              # mlocks.bdd.steps.OrderSteps.validateContract()
+
+Scenario: New order appears on stream in real time                  # features/order_stream.feature:3
+  Given I am subscribed to order stream                             # mlocks.bdd.steps.StreamSteps.subscribe()
+  When I POST /api/orders with sku "STREAM1" and amount 5           # mlocks.bdd.steps.OrderSteps.post(java.lang.String,int)
+  Then stream receives an order with sku "STREAM1" within 5 seconds # mlocks.bdd.steps.StreamSteps.verify(java.lang.String,int)
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 8.628 s -- in mlocks.bdd.RunCucumberTest
 [INFO] 
 [INFO] Results:
 [INFO] 
-[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] Tests run: 3, Failures: 0, Errors: 0, Skipped: 0
 [INFO] 
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  9.233 s
-[INFO] Finished at: 2026-05-14T12:16:58-03:00
+[INFO] Total time:  10.787 s
+[INFO] Finished at: 2026-05-14T16:54:26-03:00
 [INFO] ------------------------------------------------------------------------
 
 ```
@@ -338,7 +337,7 @@ $ curl --location 'http://localhost:8081/api/orders/1/enriched'
     "createdAt": "2026-05-12T19:28:49.163356Z"
   },
   "payment": {
-    "status": "UNKNOWN"
+    "status": "AUTHORIZED"
   }
 }
 ```
