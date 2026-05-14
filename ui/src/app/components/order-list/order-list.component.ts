@@ -25,18 +25,28 @@ import {Component, OnInit} from '@angular/core';
 import {CommonModule} from '@angular/common';
 import {OrderService} from '../../services/order.service';
 import {Order} from '../../models/order.model';
-import {Observable, scan} from 'rxjs';
+import {Observable, map, scan, shareReplay} from 'rxjs';
+import {FormsModule} from "@angular/forms";
 
 @Component({
     selector: 'app-order-list',
     standalone: true,
-    imports: [CommonModule],
-    templateUrl: './order-list.component.html'
+    imports: [CommonModule, FormsModule],
+    templateUrl: './order-list.component.html',
+    styleUrls: ['./order-list.component.css']
 })
 export class OrderListComponent implements OnInit {
 
     list$!: Observable<Order[]>;
+
+    total$!: Observable<number>;
+    pending$!: Observable<number>;
+    completed$!: Observable<number>;
+    failed$!: Observable<number>;
+
     live = false;
+    sku = '';
+    amount = 1;
 
     constructor(private orderService: OrderService) {
     }
@@ -57,9 +67,40 @@ export class OrderListComponent implements OnInit {
 
                 return [currentOrder, ...orders].slice(0, 100);
 
-            }, [] as Order[])
+            }, [] as Order[]),
+
+            shareReplay(1)
+        );
+
+        this.total$ = this.list$.pipe(
+            map(list => list.length)
+        );
+
+        this.pending$ = this.list$.pipe(
+            map(list =>
+                list.filter(o => o.status === 'PENDING').length
+            )
+        );
+
+        this.completed$ = this.list$.pipe(
+            map(list =>
+                list.filter(o => o.status === 'COMPLETED').length
+            )
+        );
+
+        this.failed$ = this.list$.pipe(
+            map(list =>
+                list.filter(o => o.status === 'FAILED').length
+            )
         );
 
         this.live = true;
+    }
+
+    send() {
+        this.orderService.create({sku: this.sku, amount: this.amount}).subscribe(() => {
+            this.sku = '';
+            this.amount = 1;
+        });
     }
 }

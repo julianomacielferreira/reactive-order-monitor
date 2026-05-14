@@ -22,17 +22,13 @@
  * THE SOFTWARE.
  */
 import {Component} from '@angular/core';
-import {OrderCreateComponent} from './components/order-create/order-create.component';
 import {OrderListComponent} from './components/order-list/order-list.component';
 
 @Component({
     selector: 'app-root',
     standalone: true,
-    imports: [OrderCreateComponent, OrderListComponent],
-    template: `
-    <h1>Reactive Order Monitor</h1>
-    <app-order-create></app-order-create>
-    <hr>
+    imports: [OrderListComponent],
+    template: `    
     <app-order-list></app-order-list>
   `
 })

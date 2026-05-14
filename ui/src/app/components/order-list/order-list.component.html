@@ -1,17 +1,62 @@
-<h3>Live Orders <span *ngIf="live" style="color:green">● LIVE</span></h3>
-<table>
-    <tr>
-        <th>ID</th>
-        <th>SKU</th>
-        <th>Amt</th>
-        <th>Status</th>
-        <th>Created</th>
-    </tr>
-    <tr *ngFor="let o of list$ | async">
-        <td>{{o.id}}</td>
-        <td>{{o.sku}}</td>
-        <td>{{o.amount}}</td>
-        <td>{{o.status}}</td>
-        <td>{{o.createdAt | date:'short'}}</td>
-    </tr>
-</table>
+<div class="dashboard">
+    <div class="header">
+        <h1>Reactive Order Monitor</h1>
+        <div class="live-badge" [class.active]="live">
+            ● LIVE
+        </div>
+    </div>
+
+    <div class="controls">
+        <input type="text" [(ngModel)]="sku" placeholder="SKU">
+        <input type="number" [(ngModel)]="amount" min="1" placeholder="Amount">
+        <button (click)="send()" [disabled]="!sku">Create</button>
+    </div>
+
+    <div class="stats">
+        <div class="card blue">
+            <span>Total Orders</span>
+            <strong>{{ total$ | async }}</strong>
+        </div>
+        <div class="card orange">
+            <span>Pending</span>
+            <strong>{{ pending$ | async }}</strong>
+        </div>
+        <div class="card green">
+            <span>Completed</span>
+            <strong>{{ completed$ | async }}</strong>
+        </div>
+        <div class="card red">
+            <span>Failed</span>
+            <strong>{{ failed$ | async }}</strong>
+        </div>
+    </div>
+
+    <div class="table-panel">
+        <table>
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>SKU</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>Created</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr *ngFor="let o of list$ | async">
+                <td>{{o.id}}</td>
+                <td>{{o.sku}}</td>
+                <td>{{o.amount}}</td>
+                <td>
+                    <span
+                            class="status"
+                            [ngClass]="o.status.toLowerCase()">
+                        {{o.status}}
+                    </span>
+                </td>
+                <td>{{o.createdAt | date:'short'}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
