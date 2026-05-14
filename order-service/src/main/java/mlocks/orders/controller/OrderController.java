@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.kafka.sender.KafkaSender;
 import reactor.core.publisher.Sinks;
 
 import java.time.Duration;
@@ -47,7 +46,6 @@ import java.time.Duration;
 public class OrderController {
     private final OrderRepository orders;
     private final AuditRepository audits;
-    private final KafkaSender<String, String> kafka;
     private final ObjectMapper mapper;
     private final WebClient paymentClient = WebClient.create("http://localhost:8082/api");
     private final Sinks.Many<Order> orderSink = Sinks.many().replay().latest();
@@ -55,11 +53,10 @@ public class OrderController {
     @Autowired
     private KafkaProducer kafkaProducer;
 
-    public OrderController(OrderRepository orders, AuditRepository audits, KafkaSender<String, String> kafka, ObjectMapper mapper) {
+    public OrderController(OrderRepository orders, AuditRepository audits, ObjectMapper mapper) {
 
         this.orders = orders;
         this.audits = audits;
-        this.kafka = kafka;
         this.mapper = mapper;
     }
 
