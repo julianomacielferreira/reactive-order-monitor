@@ -8,7 +8,24 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 
 ```
 .
+├── bdd-tests
+│   ├── pom.xml
+│   └── src
+│       └── test
+│           ├── java
+│           │   └── mlocks
+│           │       └── bdd
+│           │           ├── RunCucumberTest.java
+│           │           └── steps
+│           │               └── OrderSteps.java
+│           └── resources
+│               ├── features
+│               │   └── order.feature
+│               ├── junit-platform.properties
+│               └── openapi
+│                   └── order-api.yaml
 ├── docker-compose.yml
+├── ER_db_model.png
 ├── .gitignore
 ├── .idea
 ├── LICENSE
@@ -69,34 +86,34 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 ├── Reactive Order Monitor.postman_collection.json
 ├── README.md
 ├── realtime-reactive-order-monitor.png
-└── ui
-    ├── angular.json
-    ├── package.json
-    ├── proxy.conf.json
-    ├── src
-    │   ├── app
-    │   │   ├── app.component.ts
-    │   │   ├── components
-    │   │   │   ├── order-create
-    │   │   │   │   └── order-create.component.ts
-    │   │   │   └── order-list
-    │   │   │       ├── order-list.component.html
-    │   │   │       └── order-list.component.ts
-    │   │   ├── models
-    │   │   │   └── order.model.ts
-    │   │   └── services
-    │   │       └── order.service.ts
-    │   ├── favicon.ico
-    │   ├── index.html
-    │   ├── main.ts
-    │   ├── polyfills.ngtypecheck.ts
-    │   ├── polyfills.ts
-    │   └── styles.css
-    ├── tsconfig.app.json
-    └── tsconfig.json
+├── ui
+│   ├── angular.json
+│   ├── package.json
+│   ├── proxy.conf.json
+│   ├── src
+│   │   ├── app
+│   │   │   ├── app.component.ts
+│   │   │   ├── components
+│   │   │   │   ├── order-create
+│   │   │   │   │   └── order-create.component.ts
+│   │   │   │   └── order-list
+│   │   │   │       ├── order-list.component.html
+│   │   │   │       └── order-list.component.ts
+│   │   │   ├── models
+│   │   │   │   └── order.model.ts
+│   │   │   └── services
+│   │   │       └── order.service.ts
+│   │   ├── favicon.ico
+│   │   ├── index.html
+│   │   ├── main.ts
+│   │   ├── polyfills.ngtypecheck.ts
+│   │   ├── polyfills.ts
+│   │   └── styles.css
+│   ├── tsconfig.app.json
+│   └── tsconfig.json
+└── ui-screenshot.png
 
-35 directories, 51 files
-
+45 directories, 59 files
 ```
 
 ## Running the application
@@ -177,6 +194,76 @@ $ npm run start
 And then access [http://localhost:4200/](http://localhost:4200/) on your browser.
 
 ![Reactive Order Monitor](ui-screenshot.png)
+
+## Cucumber Tests
+
+Type the following three commands in directory ``bdd-tests`` to install dependencies and run the tests:
+
+
+```bash
+$ cd bdd-tests/
+$ ../mvnw install
+$ ../mvnw test
+```
+
+The output must be like this:
+
+```bash
+$ ../mvnw test
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] --------------------------< mlocks:bdd-tests >--------------------------
+[INFO] Building bdd-tests 1.0.0
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ bdd-tests ---
+[INFO] skip non existing resourceDirectory /home/juliano/Public/reactive-order-monitor/bdd-tests/src/main/resources
+[INFO] 
+[INFO] --- compiler:3.13.0:compile (default-compile) @ bdd-tests ---
+[INFO] No sources to compile
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ bdd-tests ---
+[INFO] Copying 3 resources from src/test/resources to target/test-classes
+[INFO] 
+[INFO] --- compiler:3.13.0:testCompile (default-testCompile) @ bdd-tests ---
+[INFO] Recompiling the module because of changed source code.
+[INFO] Compiling 2 source files with javac [debug target 17] to target/test-classes
+[INFO] 
+[INFO] --- surefire:3.2.5:test (default-test) @ bdd-tests ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running mlocks.bdd.RunCucumberTest
+
+Scenario: Valid order is persisted and event published  # features/order.feature:3
+SLF4J: Failed to load class "org.slf4j.impl.StaticLoggerBinder".
+SLF4J: Defaulting to no-operation (NOP) logger implementation
+SLF4J: See http://www.slf4j.org/codes.html#StaticLoggerBinder for further details.
+  Given the system is clean                             # mlocks.bdd.steps.OrderSteps.clean()
+  When I POST /api/orders with sku "ABC" and amount 100 # mlocks.bdd.steps.OrderSteps.post(java.lang.String,int)
+  Then response status is 201                           # mlocks.bdd.steps.OrderSteps.status(int)
+  And response matches OpenAPI spec                     # mlocks.bdd.steps.OrderSteps.validateContract()
+  And order is stored in database                       # mlocks.bdd.steps.OrderSteps.dbCheck()
+Kafka event received: {"orderId":1,"type":"CREATED","ts":"2026-05-14T14:17:34.974324117Z"}
+  And event "CREATED" is published to Kafka             # mlocks.bdd.steps.OrderSteps.kafkaCheck(java.lang.String)
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 6.625 s -- in mlocks.bdd.RunCucumberTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 1, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  9.233 s
+[INFO] Finished at: 2026-05-14T12:16:58-03:00
+[INFO] ------------------------------------------------------------------------
+
+```
+
 
 ## Endpoints
 
