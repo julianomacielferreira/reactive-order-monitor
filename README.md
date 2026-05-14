@@ -17,10 +17,13 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │           │       └── bdd
 │           │           ├── RunCucumberTest.java
 │           │           └── steps
-│           │               └── OrderSteps.java
+│           │               ├── OrderSteps.java
+│           │               └── StreamSteps.java
 │           └── resources
 │               ├── features
-│               │   └── order.feature
+│               │   ├── order_enriched.feature
+│               │   ├── order.feature
+│               │   └── order_stream.feature
 │               ├── junit-platform.properties
 │               └── openapi
 │                   └── order-api.yaml
@@ -113,7 +116,7 @@ Real-Time Order Monitor with two reactive microservices, Kafka in the middle, an
 │   └── tsconfig.json
 └── ui-screenshot.png
 
-45 directories, 59 files
+45 directories, 62 files
 ```
 
 ## Running the application
