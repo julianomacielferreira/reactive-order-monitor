@@ -200,8 +200,7 @@ And then access [http://localhost:4200/](http://localhost:4200/) on your browser
 
 ## Cucumber Tests
 
-Type the following three commands in directory ``bdd-tests`` to install dependencies and run the tests:
-
+Type the following commands in directory ``bdd-tests`` to install dependencies and run the tests:
 
 ```bash
 $ cd bdd-tests/
