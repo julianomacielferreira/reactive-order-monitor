@@ -38,24 +38,24 @@ export class OrderListComponent implements OnInit {
     list$!: Observable<Order[]>;
     live = false;
 
-    constructor(private svc: OrderService) {
+    constructor(private orderService: OrderService) {
     }
 
     ngOnInit() {
 
-        this.list$ = this.svc.streamOrders().pipe(
-            scan((acc, cur) => {
+        this.list$ = this.orderService.streamOrders().pipe(
+            scan((orders, currentOrder) => {
 
                 const existing =
-                    acc.findIndex(o => o.id === cur.id);
+                    orders.findIndex(o => o.id === currentOrder.id);
 
                 if (existing >= 0) {
-                    return acc.map(o =>
-                        o.id === cur.id ? cur : o
+                    return orders.map(o =>
+                        o.id === currentOrder.id ? currentOrder : o
                     );
                 }
 
-                return [cur, ...acc].slice(0, 100);
+                return [currentOrder, ...orders].slice(0, 100);
 
             }, [] as Order[])
         );

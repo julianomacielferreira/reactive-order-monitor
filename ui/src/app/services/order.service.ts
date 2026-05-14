@@ -36,18 +36,18 @@ export class OrderService {
     streamOrders(): Observable<Order> {
 
         return new Observable<Order>(observer => {
-            const es = new EventSource('/api/orders/stream');
+            const eventSource = new EventSource('/api/orders/stream');
 
-            es.onmessage = e => {
+            eventSource.onmessage = event => {
                 // force back into Angular zone so change detection fires
-                this.zone.run(() => observer.next(JSON.parse(e.data)));
+                this.zone.run(() => observer.next(JSON.parse(event.data)));
             };
 
-            es.onerror = err => {
+            eventSource.onerror = err => {
                 this.zone.run(() => observer.error(err));
             };
 
-            return () => es.close();
+            return () => eventSource.close();
         }).pipe(
             bufferTime(500), // reduce Angular change-detection frequency
             concatMap(batch => batch),
