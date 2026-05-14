@@ -1,0 +1,32 @@
+openapi: 3.0.3
+info:
+  title: Order API
+  version: 1.0.0
+paths:
+  /api/orders:
+    post:
+      summary: Create order
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [sku, amount]
+              properties:
+                sku: { type: string }
+                amount: { type: integer, minimum: 1 }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [id, sku, amount, status]
+                properties:
+                  id: { type: integer }
+                  sku: { type: string }
+                  amount: { type: integer }
+                  status: { type: string }
+                  createdAt: { type: string }

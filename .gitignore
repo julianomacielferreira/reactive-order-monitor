@@ -28,3 +28,5 @@ replay_pid*
 /ui/node_modules/
 /ui/package-lock.json
 /ui/.angular
+/bdd-tests/target/
+/bdd-tests/bdd-tests2.iml
