@@ -141,17 +141,24 @@ To stop the containers, run:
 $ docker-compose down
 ```
 
-Type the following three commands in directory ``order-service`` to install dependencies and start the service:
+Run the following commands to install dependencies and start the ``order-service``:
+
+If you are in the root directory of the project:
 
 ```bash
 $ cd order-service/
+```
+
+And then run:
+
+```bash
 $ ../mvnw install
 $ ../mvnw spring-boot:run
 ```
 
 The service will run on ``http://localhost:8081/api/``
 
-Do the same in the directory ``payment-service`` (install dependencies and start the service):
+Do the same (install dependencies and start the service) with ``payment-service`` service:
 
 ```bash
 $ cd payment-service/
